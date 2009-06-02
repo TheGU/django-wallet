@@ -27,7 +27,7 @@ class Wallet(models.Model):
         return value
     
     def withdraw(self, value, allow_overdraft=False):
-        if isinstance(value, float):
+        if not isinstance(value, int) and not isinstance(value, Decimal):
             raise ValueError("Value must be a Python int or Decimal")
         if value < 0:
             raise ValueError("You can't withdraw a negative amount")
@@ -39,7 +39,7 @@ class Wallet(models.Model):
         )
     
     def deposit(self, value):
-        if isinstance(value, float):
+        if not isinstance(value, int) and not isinstance(value, Decimal):
             raise ValueError("Value must be a Python int or Decimal")
         if value < 0:
             raise ValueError("You can't deposit a negative amount")
@@ -53,7 +53,7 @@ class Transaction(models.Model):
     wallet = models.ForeignKey(Wallet, related_name='transactions')
     date = models.DateTimeField()
     value = models.DecimalField(max_digits=20, decimal_places=2)
-    notes = models.TextField(null=True)
+    notes = models.TextField(null=True, blank=True)
     
     def __unicode__(self):
         return str(self.value)
