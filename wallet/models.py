@@ -10,7 +10,7 @@ class Overdraft(Exception):
 
 
 class Wallet(models.Model):
-    user = models.ForeignKey(User, related_name='wallets')
+    user = models.ForeignKey(User, unique=True, related_name='wallets')
     
     def __unicode__(self):
         return "%s's wallet" % self.user.username
