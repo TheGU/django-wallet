@@ -1,24 +1,12 @@
 import logging
 
-from django.conf import settings
-
 from paypal.standard.ipn.signals import payment_was_successful
 
 from wallet.models import Invoice
 
 
-logger = logging.getLogger('wallet')
-handler = logging.StreamHandler()
-formatter = logging.Formatter(
-    "%(asctime)s %(levelname)-8s --- %(message)s"
-)
-handler.setFormatter(formatter)
-if not getattr(settings, 'PAYPAL_SANDBOX', True):
-    handler.setHandler(logging.ERROR)
-logger.addHandler(handler)
-
-
 def wallet_deposit(sender, **kwargs):
+    logger = logging.getLogger('wallet')
     logger.debug('PayPal Signal Handler')
     invoice_id = sender.invoice
     invoice_id = int(invoice_id)

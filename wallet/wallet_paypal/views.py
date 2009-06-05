@@ -1,6 +1,8 @@
 import urllib
 import datetime
 import urlparse
+import logging
+from pprint import pformat
 
 from django.conf import settings
 from django.shortcuts import render_to_response, get_object_or_404
@@ -36,7 +38,7 @@ def deposit(request, option_id):
         option=option,
         date_billed=datetime.datetime.now(),
     )
-    domain = Site.objects.get_current().domain
+    domain = 'http://' + Site.objects.get_current().domain
     return_url = reverse('deposit_return', args=[option.id, invoice.id])
     cancel_url = reverse('deposit_cancel', args=[option.id, invoice.id])
     paypal_data = {
@@ -61,4 +63,9 @@ def deposit(request, option_id):
         url = SANDBOX_POSTBACK_ENDPOINT
     else:
         url = POSTBACK_ENDPOINT
+    logger = logging.getLogger('wallet')
+    logger.debug(pformat(paypal_data))
+    logger.debug('Domain: %s' % domain)
+    logger.debug('URL: %s' % url)
+    logger.debug('%s?%s' % (url, query))
     return HttpResponseRedirect('%s?%s' % (url, query))

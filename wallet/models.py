@@ -2,12 +2,24 @@ import logging
 import datetime
 from decimal import Decimal
 
+from django.conf import settings
 from django.db import models, connection
 from django.contrib.auth.models import User
 
 
 class Overdraft(Exception):
     pass
+
+
+logger = logging.getLogger('wallet')
+handler = logging.StreamHandler()
+formatter = logging.Formatter(
+    "%(asctime)s %(levelname)-8s --- %(message)s"
+)
+handler.setFormatter(formatter)
+if not getattr(settings, 'WALLET_LOGGER', True):
+    handler.setHandler(logging.ERROR)
+logger.addHandler(handler)
 
 
 class Wallet(models.Model):
