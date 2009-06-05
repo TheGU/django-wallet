@@ -81,33 +81,3 @@ class Invoice(models.Model):
         blank=True,
         unique=True,
     )
-
-
-logger = logging.getLogger('wallet')
-handler = logging.StreamHandler()
-formatter = logging.Formatter(
-    "%(asctime)s %(levelname)-8s --- %(message)s"
-)
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-
-from paypal.standard.ipn.signals import payment_was_successful
-
-def wallet_deposit(sender, **kwargs):
-    invoice_id = sender.invoice
-    try:
-        invoice_id = int(invoice_id)
-    except ValueError:
-        logger.critical('Unable to convert IPN #%d invoice to an integer: "%s"' % (sender.id, invoice_id))
-        return
-    try:
-        invoice = Invoice.objects.get(id=int(sender.invoice))
-    except Invoice.DoesNotExist:
-        logger.critical(
-            'IPN #%d supplied incorrect invoice id: %s' % (sender.id, sender.invoice)
-        )
-        return
-    wallet = invoice.user.wallets.all()[0]
-    invoice.transaction = wallet.deposit(invoice.option.wallet_amount)
-    invoice.save()
-payment_was_successful.connect(wallet_deposit)
