@@ -1,3 +1,4 @@
+import logging
 import datetime
 from decimal import Decimal
 
@@ -33,7 +34,7 @@ class Wallet(models.Model):
             raise ValueError("You can't withdraw a negative amount")
         if not allow_overdraft and (self.get_balance() - value) < 0:
             raise Overdraft
-        self.transactions.create(
+        return self.transactions.create(
             date=datetime.datetime.now(),
             value=value * Decimal('-1.0'),
         )
@@ -43,7 +44,7 @@ class Wallet(models.Model):
             raise ValueError("Value must be a Python int or Decimal")
         if value < 0:
             raise ValueError("You can't deposit a negative amount")
-        self.transactions.create(
+        return self.transactions.create(
             date=datetime.datetime.now(),
             value=value,
         )
@@ -57,3 +58,56 @@ class Transaction(models.Model):
     
     def __unicode__(self):
         return str(self.value)
+
+
+class PaymentOption(models.Model):
+    name = models.CharField(max_length=255)
+    dollar_amount = models.DecimalField(max_digits=20, decimal_places=2)
+    wallet_amount = models.DecimalField(max_digits=20, decimal_places=2)
+    enabled = models.BooleanField(default=True)
+    
+    def __unicode__(self):
+        return '%s ($%.2f)' % (self.name, self.dollar_amount)
+
+
+class Invoice(models.Model):
+    user = models.ForeignKey(User, related_name='wallet_invoices')
+    option = models.ForeignKey(PaymentOption, related_name='invoices')
+    date_billed = models.DateTimeField()
+    transaction = models.ForeignKey(
+        Transaction,
+        related_name='invoices',
+        null=True,
+        blank=True,
+        unique=True,
+    )
+
+
+logger = logging.getLogger('wallet')
+handler = logging.StreamHandler()
+formatter = logging.Formatter(
+    "%(asctime)s %(levelname)-8s --- %(message)s"
+)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+from paypal.standard.ipn.signals import payment_was_successful
+
+def wallet_deposit(sender, **kwargs):
+    invoice_id = sender.invoice
+    try:
+        invoice_id = int(invoice_id)
+    except ValueError:
+        logger.critical('Unable to convert IPN #%d invoice to an integer: "%s"' % (sender.id, invoice_id))
+        return
+    try:
+        invoice = Invoice.objects.get(id=int(sender.invoice))
+    except Invoice.DoesNotExist:
+        logger.critical(
+            'IPN #%d supplied incorrect invoice id: %s' % (sender.id, sender.invoice)
+        )
+        return
+    wallet = invoice.user.wallets.all()[0]
+    invoice.transaction = wallet.deposit(invoice.option.wallet_amount)
+    invoice.save()
+payment_was_successful.connect(wallet_deposit)
