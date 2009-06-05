@@ -1,0 +1,45 @@
+{% extends 'admin/index.html' %}
+{% block title %}Wallet Report{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="/admin/">Home</a> &rsaquo; Wallet Report
+</div>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+    <h1>Wallet Report</h1>
+    <br />
+    <div class='module'>
+        <table>
+            <caption>Transaction Totals</caption>
+            <tr>
+                <th>Name</th>
+                <th>Value</th>
+            </tr>
+            {% for type, total in totals %}
+                <tr class='{% cycle 'o' 'e' %}'>
+                    <td scope="row">{{ type }}</td>
+                    <td>{{ total }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div class='module'>
+        <table>
+            <caption>User Totals</caption>
+            <tr>
+                <th>Name</th>
+                <th>Value</th>
+            </tr>
+            {% for row in users %}
+                <tr class='{% cycle 'o' 'e' %}'>
+                    <td scope="row">{{ row.0 }}</td>
+                    <td>{{ row.1 }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

@@ -14,4 +14,7 @@ urlpatterns = patterns('',
         views.deposit_cancel,
         name='deposit_cancel',
     ),
+    url(
+        r'^report/$', views.wallet_report, name='wallet_report',
+    ),
 )

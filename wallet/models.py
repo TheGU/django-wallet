@@ -25,6 +25,9 @@ logger.addHandler(handler)
 class Wallet(models.Model):
     user = models.ForeignKey(User, unique=True, related_name='wallets')
     
+    class Meta:
+        permissions = (('can_view_wallet_report', 'Can view wallet report'),)
+    
     def __unicode__(self):
         return "%s's wallet" % self.user.username
     
