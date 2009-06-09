@@ -43,7 +43,7 @@ def deposit(request, option_id):
     cancel_url = reverse('deposit_cancel', args=[option.id, invoice.id])
     paypal_data = {
         'cmd': '_xclick',
-        'business': settings.PAYPAL_RECEIVER_EMAIL,
+        'business': settings.PAYPAL_BUSINESS_EMAIL,
         'amount': option.dollar_amount,
         'item_name': option.name,
         'invoice': invoice.id,
@@ -59,7 +59,7 @@ def deposit(request, option_id):
         'charset': 'UTF-8',
     }
     query = urllib.urlencode(paypal_data)
-    if getattr(settings, 'PAYPAL_SANDBOX', True):
+    if getattr(settings, "PAYPAL_TEST", True):
         url = SANDBOX_POSTBACK_ENDPOINT
     else:
         url = POSTBACK_ENDPOINT
