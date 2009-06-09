@@ -72,7 +72,7 @@ class Transaction(models.Model):
     notes = models.TextField(null=True, blank=True)
     
     def __unicode__(self):
-        return str(self.value)
+        return 'Transaction #%d (%.2f)' % (self.id, self.value)
 
 
 class PaymentOption(models.Model):

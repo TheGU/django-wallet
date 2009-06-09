@@ -47,4 +47,5 @@ class InvoiceAdmin(admin.ModelAdmin):
         'user__username',
         'user__email',
     )
+    raw_id_fields = ('transaction',)
 admin.site.register(wallet.Invoice, InvoiceAdmin)
