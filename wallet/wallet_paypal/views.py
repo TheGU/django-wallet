@@ -20,8 +20,12 @@ from wallet import models as wallet
 
 
 def options(request):
+    options = wallet.PaymentOption.objects.order_by('dollar_amount')
+    if 'min_amount' in request.GET:
+        options = options.filter(wallet_amount__gte=request.GET['min_amount'])
     context = {
-        'options': wallet.PaymentOption.objects.order_by('dollar_amount'),
+        'options': options,
+        'next': request.GET.get('next', None),
     }
     return render_to_response(
         'wallet/paypal/options.html',
@@ -41,6 +45,8 @@ def deposit(request, option_id):
     domain = 'http://' + Site.objects.get_current().domain
     return_url = reverse('deposit_return', args=[option.id, invoice.id])
     cancel_url = reverse('deposit_cancel', args=[option.id, invoice.id])
+    if 'next' in request.GET:
+        return_url += '?next=%s' % request.GET['next']
     paypal_data = {
         'cmd': '_xclick',
         'business': settings.PAYPAL_BUSINESS_EMAIL,

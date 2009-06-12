@@ -44,6 +44,8 @@ def deposit_return(request, option_id, invoice_id):
     except wallet.Invoice.DoesNotExist:
         raise Http404
     request.user.message_set.create(message='Thank you for your payment!')
+    if 'next' in request.GET:
+        return HttpResponseRedirect(request.GET['next'])
     return HttpResponseRedirect('/')
 
 
