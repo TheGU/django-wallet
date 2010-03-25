@@ -81,8 +81,8 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.webdesign',
     'wallet',
-    'wallet.wallet_paypal', # optional
-    'paypal.standard.ipn', # optional
+    #'wallet.wallet_paypal', # optional
+    #'paypal.standard.ipn', # optional
 )
 
 PAYPAL_TEST = False # or True for PayPal sandbox

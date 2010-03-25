@@ -16,5 +16,5 @@ urlpatterns = patterns('',
     # (r'^admin/', include(admin.site.urls)),
     url(r'^wallet/', include('wallet.urls')),
     url(r'^wallet/paypal/', include('wallet.wallet_paypal.urls')), # optional
-    url(r'^paypal/ipn/', include('paypal.standard.ipn.urls')), # optional
+    #url(r'^paypal/ipn/', include('paypal.standard.ipn.urls')), # optional
 )
